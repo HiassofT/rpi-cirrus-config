@@ -70,14 +70,6 @@ reset_rpi_in() {
 	set_all_mixers $rpi_in_signals None None 32
 }
 
-reset_rpi_out() {
-	set_all_mixers $rpi_out_signals None None 32
-}
-
-reset_spdif_in() {
-	set_all_mixers $spdif_in_signals None None 32
-}
-
 reset_spdif_out() {
 	set_all_mixers $spdif_out_signals None None 32
 }
