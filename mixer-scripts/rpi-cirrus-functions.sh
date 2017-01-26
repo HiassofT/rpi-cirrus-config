@@ -279,7 +279,7 @@ playback_to_headset() {
 }
 
 # args: [ VOLUME ]
-playback_to_speaker() {
+playback_to_speakers() {
 	reset_speaker_out
 	mixer "Speaker Digital Volume" "${1:-128}"
 	setup_speaker_out $rpi_out_signals
