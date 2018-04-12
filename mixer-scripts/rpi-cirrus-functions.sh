@@ -42,6 +42,10 @@ speaker_out_signals="${speaker_out}L ${speaker_out}R"
 filter_signals="LHPF1 LHPF2"
 filter2_signals="LHPF3 LHPF4"
 
+mixer_query() {
+    amixer -q -c RPiCirrus scontents > /dev/null
+}
+
 mixer() {
 	amixer -q -c RPiCirrus cset name="$1" "$2"
 }
