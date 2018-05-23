@@ -13,4 +13,4 @@ Shell script to setup the mixer for common tasks:
 
 ## alsa
 
-* `RPi-Cirrus.conf` ALSA card configuration for IEC958 (S/PDIF) output. Copy this file to `/usr/share/alsa/cards` to get S/PDIF AC3 and DTS passthrough in audio and video player applications like Kodi.
+* [`RPiCirrus.conf`](alsa/RPiCirrus.conf) ALSA card configuration for IEC958 (S/PDIF) output. Copy this file to `/usr/share/alsa/cards` to get S/PDIF AC3 and DTS passthrough in audio and video player applications like Kodi.
