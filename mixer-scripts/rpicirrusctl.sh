@@ -245,9 +245,30 @@ cmd_listen() {
 # rpicirrusctl
 
 usage() {
-    echo "usage: ${SCRIPT_NAME} command|help [...]"
+    echo "usage: ${SCRIPT_NAME} [-s] command|help [...]"
     echo '    command: playback-to, record-from, reset-paths, listen'
+    echo '    -s : display script only, do not touch mixer'
 }
+
+while getopts ":sh" opt; do
+	case $opt in
+		s)
+		RPI_DEBUG=1
+		;;
+
+		h)
+		usage
+		exit 0
+		;;
+
+		\?)
+		echoerr "Invalid option: -$OPTARG"
+		exit 3
+		;;
+	esac
+done
+
+shift $((OPTIND-1))
 
 mixer_query || {
     exit 2

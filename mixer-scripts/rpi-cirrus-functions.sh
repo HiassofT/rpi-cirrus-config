@@ -1,5 +1,7 @@
 # input and output interface/mixer definitions
 
+RPI_DEBUG=0
+
 # I2S interface RPi-WM5102 base name
 rpi_if="AIF1"
 rpi_in_if="${rpi_if}TX"
@@ -43,11 +45,21 @@ filter_signals="LHPF1 LHPF2"
 filter2_signals="LHPF3 LHPF4"
 
 mixer_query() {
-    amixer -q -c RPiCirrus scontents > /dev/null
+	if [[ $RPI_DEBUG -ne 1 ]]; then
+		amixer -q -c RPiCirrus cget 'name=IN1R Volume' > /dev/null
+	fi
 }
 
 mixer() {
-	amixer -q -c RPiCirrus cset name="$1" "$2"
+	echo "cset 'name=$1' '$2'"
+}
+
+mixer_script() {
+	if [[ $RPI_DEBUG -eq 1 ]]; then
+		cat
+	else
+		amixer -q -c RPiCirrus -s
+	fi
 }
 
 # args: LEFT_MIXER RIGHT_MIXER LEFT_SRC RIGHT_SRC [ VOLUME [ INPUT ] ]
@@ -259,103 +271,121 @@ setup_high_pass_filter() {
 # helper functions corresponding to use-case scripts
 
 reset_paths() {
-	reset_rpi_cirrus
+	reset_rpi_cirrus | mixer_script
 }
 
 playback_to_spdif() {
-	reset_spdif_out
-	setup_spdif_out $rpi_out_signals
+	(
+		reset_spdif_out
+		setup_spdif_out $rpi_out_signals
+	) | mixer_script
 }
 
 # args: [ VOLUME ]
 playback_to_lineout() {
-	reset_line_out
-	mixer "${line_out} Digital Volume" "${1:-128}"
-	setup_line_out $rpi_out_signals
+	(
+		reset_line_out
+		mixer "${line_out} Digital Volume" "${1:-128}"
+		setup_line_out $rpi_out_signals
+	) | mixer_script
 }
 
 # args: [ VOLUME ]
 playback_to_headset() {
-# use defauk path gain of -6dB for safety. ie max 0.5Vrms output level.
-	reset_headset_out
-	mixer "${headset_out} Digital Volume" "${1:-116}"
-	setup_headset_out $rpi_out_signals
+	(
+		# use defauk path gain of -6dB for safety. ie max 0.5Vrms output level.
+		reset_headset_out
+		mixer "${headset_out} Digital Volume" "${1:-116}"
+		setup_headset_out $rpi_out_signals
+	) | mixer_script
 }
 
 # args: [ VOLUME ]
 playback_to_speakers() {
-	reset_speaker_out
-	mixer "Speaker Digital Volume" "${1:-128}"
-	setup_speaker_out $rpi_out_signals
+	(
+		reset_speaker_out
+		mixer "Speaker Digital Volume" "${1:-128}"
+		setup_speaker_out $rpi_out_signals
+	) | mixer_script
 }
 
 # args: [ VOLUME [ DIGITAL_VOLUME ] ]
 record_from_linein() {
-	reset_line_in
-	reset_filter
-	reset_rpi_in
+	(
+		reset_line_in
+		reset_filter
+		reset_rpi_in
 
-	# better THD in normal mode vs lower noise floor in high performance
-	mixer "${line_in} High Performance Switch" on
+		# better THD in normal mode vs lower noise floor in high performance
+		mixer "${line_in} High Performance Switch" on
 
-	# default input gain +8dB
-	setup_line_in "${1:-8}" "${2:-128}"
+		# default input gain +8dB
+		setup_line_in "${1:-8}" "${2:-128}"
 
-	# route input through high pass filter to remove DC
-	setup_high_pass_filter $line_in_signals
-	set_mixer $rpi_in_signals $filter_signals
+		# route input through high pass filter to remove DC
+		setup_high_pass_filter $line_in_signals
+		set_mixer $rpi_in_signals $filter_signals
+	) | mixer_script
 }
 
 # args: [ VOLUME [ DIGITAL_VOLUME ] ]
 record_from_linein_micbias() {
-	reset_line_in
-	reset_filter
-	reset_rpi_in
+	(
+		reset_line_in
+		reset_filter
+		reset_rpi_in
 
-	mixer "Line Input Micbias" on
+		mixer "Line Input Micbias" on
 
-	# better THD in normal mode vs lower noise floor in high performance
-	mixer "${line_in} High Performance Switch" on
+		# better THD in normal mode vs lower noise floor in high performance
+		mixer "${line_in} High Performance Switch" on
 
-	# default input gain +8dB
-	setup_line_in "${1:-8}" "${2:-128}"
+		# default input gain +8dB
+		setup_line_in "${1:-8}" "${2:-128}"
 
-	# route input through high pass filter to remove DC
-	setup_high_pass_filter $line_in_signals
-	set_mixer $rpi_in_signals $filter_signals
+		# route input through high pass filter to remove DC
+		setup_high_pass_filter $line_in_signals
+		set_mixer $rpi_in_signals $filter_signals
+	) | mixer_script
 }
 
 # args: [ VOLUME [ DIGITAL_VOLUME ] ]
 record_from_dmic() {
-	reset_dmic_in
-	reset_filter
-	reset_rpi_in
+	(
+		reset_dmic_in
+		reset_filter
+		reset_rpi_in
 
-	# default input gain 0dB and digital gain -6dB
-	setup_dmic_in "${1:-0}" "${2:-116}"
+		# default input gain 0dB and digital gain -6dB
+		setup_dmic_in "${1:-0}" "${2:-116}"
 
-	# route input through high pass filter to remove DC
-	setup_high_pass_filter $dmic_in_signals
-	set_mixer $rpi_in_signals $filter_signals
+		# route input through high pass filter to remove DC
+		setup_high_pass_filter $dmic_in_signals
+		set_mixer $rpi_in_signals $filter_signals
+	) | mixer_script
 }
 
 # args: [ VOLUME [ DIGITAL_VOLUME ] ]
 record_from_headset() {
-	reset_headset_in
-	reset_filter
-	reset_rpi_in
+	(
+		reset_headset_in
+		reset_filter
+		reset_rpi_in
 
-	# default input gain +20dB
-	setup_headset_in "${1:-20}" "${2:-128}"
+		# default input gain +20dB
+		setup_headset_in "${1:-20}" "${2:-128}"
 
-	# route input through high pass filter to remove DC
-	setup_high_pass_filter $headset_in_signals
-	set_mixer $rpi_in_signals $filter_signals
+		# route input through high pass filter to remove DC
+		setup_high_pass_filter $headset_in_signals
+		set_mixer $rpi_in_signals $filter_signals
+	) | mixer_script
 }
 
 record_from_spdif() {
-	reset_rpi_in
+	(
+		reset_rpi_in
 
-	mixer "Min Sample Rate" 32kHz
-	set_mixer $rpi_in_signals $spdif_in_signals
+		mixer "Min Sample Rate" 32kHz
+		set_mixer $rpi_in_signals $spdif_in_signals
+	) | mixer_script
 }
