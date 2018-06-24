@@ -9,10 +9,10 @@ echoerr() {
 }
 
 # include rpi-cirrus-functions.sh
-if [ -f /usr/share/rpi-cirrus/${FN_SCRIPT} ]; then
-    . /usr/share/rpi-cirrus/${FN_SCRIPT}
-elif [ -f  ${SCRIPT_DIR}/${FN_SCRIPT} ]; then
+if [ -f  ${SCRIPT_DIR}/${FN_SCRIPT} ]; then
     . ${SCRIPT_DIR}/${FN_SCRIPT}
+elif [ -f /usr/share/rpi-cirrus/${FN_SCRIPT} ]; then
+    . /usr/share/rpi-cirrus/${FN_SCRIPT}
 else
     echoerr "${SCRIPT_NAME}: Unable to find ${FN_SCRIPT} file"
     exit 1
@@ -246,7 +246,7 @@ cmd_listen() {
 
 usage() {
     echo "usage: ${SCRIPT_NAME} [-s] command|help [...]"
-    echo '    command: playback-to, record-from, reset-paths, listen'
+    echo '    command: playback[-to], record[-from], reset[-paths], listen'
     echo '    -s : display script only, do not touch mixer'
 }
 
