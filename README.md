@@ -1,18 +1,19 @@
 # Cirrus Logic Audio Card config scripts
 
-Config files and scripts needed to setup the Cirrus Logic Audio Card
+## Supported devices:
 
-## mixer-scripts
+* [Wolfson Audio Card](http://www.element14.com/wolfson) for Raspberry Pi B,
+* [Cirrus Logic Audio Card](http://www.element14.com/cirruslogic_ac) for Raspberry Pi B+/A+/2
 
-Shell scripts to setup the mixer for common tasks:
+## rpicirrusctl.sh
 
-* `Reset_paths.sh` reset mixer, disable all inputs and outputs
-* `Playback_to_...` configure for audio output
-* `Record_from_...` configure for audio recording
-* `Cirrus_listen.sh` route input signals directly to output
-* `rpi-cirrus-functions.sh` common functions used to simplify above scripts
+Shell script to setup the mixer for common tasks:
 
-## alsa
+* `rpicirrusctl.sh reset-paths` reset mixer, disable all inputs and outputs
+* `rpicirrusctl.sh playback-to ...` configure for audio output
+* `rpicirrusctl.sh record-from ...` configure for audio recording
+* `rpicirrusctl.sh listen ...` route input signals directly to output
 
-* `RPi-Cirrus.conf` ALSA card configuration for IEC958 (S/PDIF) output. Copy this file to `/usr/share/alsa/cards` to get S/PDIF AC3 and DTS passthrough in audio and video player applications like Kodi.
+## ALSA
 
+* [`RPiCirrus.conf`](alsa/RPiCirrus.conf) ALSA card configuration for IEC958 (S/PDiF) output. Copy this file to `/usr/share/alsa/cards` to get S/PDiF AC3 and DTS passthrough in audio and video player applications like *Kodi*.
